@@ -7,6 +7,7 @@ from api.middleware.auth import get_current_user
 from api.schemas.review import ReviewCreate, ReviewListResponse, ReviewResponse
 from core.database import get_db
 from core.models.user import User
+from core.services.profile_service import get_profile
 from core.services.review_service import (
     create_review,
     get_review,
@@ -30,8 +31,25 @@ async def create_review_endpoint(
     Create a new review for a profile.
     Triggers ingestion pipeline and agent orchestration asynchronously.
     Returns review with status="pending" immediately.
+    Returns 404 if the profile does not exist or isn't owned by the user,
+    422 if the profile has no content to review.
     """
     try:
+        profile = await get_profile(db=db, profile_id=data.profile_id, user_id=current_user.id)
+
+        if not profile:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Profile not found",
+            )
+
+        if not (profile.github_username or profile.portfolio_url or profile.resume_text):
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Profile has no content to review — add a GitHub username, "
+                "portfolio URL, or resume first",
+            )
+
         # Create review with status="pending"
         review = await create_review(
             db=db,
