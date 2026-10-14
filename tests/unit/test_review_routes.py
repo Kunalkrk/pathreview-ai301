@@ -58,9 +58,7 @@ class TestReviewRoutes:
     def mock_profile_no_content(self):
         """Patch get_profile (as imported into api.routes.reviews) to return
         a profile with none of the three content fields set."""
-        with patch(
-            "api.routes.reviews.get_profile", new_callable=AsyncMock
-        ) as mock_get_profile:
+        with patch("api.routes.reviews.get_profile", new_callable=AsyncMock) as mock_get_profile:
             profile = Mock()
             profile.id = uuid4()
             profile.github_username = None
@@ -72,9 +70,7 @@ class TestReviewRoutes:
     @pytest.fixture
     def mock_profile_with_content(self):
         """Patch get_profile to return a profile that has content to review."""
-        with patch(
-            "api.routes.reviews.get_profile", new_callable=AsyncMock
-        ) as mock_get_profile:
+        with patch("api.routes.reviews.get_profile", new_callable=AsyncMock) as mock_get_profile:
             profile = Mock()
             profile.id = uuid4()
             profile.github_username = "octocat"
@@ -86,9 +82,7 @@ class TestReviewRoutes:
     @pytest.fixture
     def mock_profile_not_found(self):
         """Patch get_profile to simulate a missing/not-owned profile."""
-        with patch(
-            "api.routes.reviews.get_profile", new_callable=AsyncMock
-        ) as mock_get_profile:
+        with patch("api.routes.reviews.get_profile", new_callable=AsyncMock) as mock_get_profile:
             mock_get_profile.return_value = None
             yield mock_get_profile
 
